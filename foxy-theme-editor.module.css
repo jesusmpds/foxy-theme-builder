@@ -1,0 +1,595 @@
+/* ==========================================
+   1. EDITOR — root wrapper & header
+   ========================================== */
+
+.editor {
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+}
+
+.editorHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.editorTitle {
+  font-size: 22px;
+  font-weight: 700;
+  margin: 0;
+  color: #111;
+}
+
+.editorSubtitle {
+  font-size: 13px;
+  color: #888;
+  margin: 4px 0 0;
+}
+
+.headerButtons {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.presetButton {
+  padding: 6px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 5px;
+  cursor: pointer;
+  border-width: 1px;
+  border-style: solid;
+}
+
+.exportButton {
+  padding: 6px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  border: 1px solid #888;
+  background: #fff;
+  color: #444;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.exportButton:hover {
+  background: #f5f5f5;
+}
+
+.importButton {
+  padding: 6px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  border: 1px solid #888;
+  background: #fff;
+  color: #444;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.importButton:hover {
+  background: #f5f5f5;
+}
+
+/* ==========================================
+   2. EDITOR — two-column grid
+   ========================================== */
+
+.editorGrid {
+  display: grid;
+  grid-template-columns: 340px minmax(0, 1fr);
+  gap: 24px;
+  align-items: start;
+}
+
+/* ==========================================
+   3. CONTROLS PANEL — left column
+   ========================================== */
+
+.controlsPanel {
+  max-height: calc(100vh - 120px);
+  overflow-y: auto;
+  padding-right: 8px;
+}
+
+/* ==========================================
+   4. SECTION — collapsible accordion
+   ========================================== */
+
+.sectionWrapper {
+  margin-bottom: 2px;
+}
+
+.sectionButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  background: none;
+  border: none;
+  border-bottom: 1px solid #eee;
+  padding: 10px 0;
+  cursor: pointer;
+  text-align: left;
+}
+
+.sectionArrow {
+  font-size: 10px;
+  color: #999;
+  transition: transform 0.2s;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.sectionArrowOpen {
+  transform: rotate(90deg);
+}
+
+.sectionTitle {
+  font-size: 13px;
+  font-weight: 600;
+  color: #222;
+}
+
+.sectionSubtitle {
+  font-size: 11px;
+  color: #999;
+  font-weight: 400;
+}
+
+.sectionContent {
+  padding: 10px 0 6px;
+}
+
+.sectionSubheading {
+  font-size: 11px;
+  color: #999;
+  font-weight: 600;
+  margin: 4px 0 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.sectionSubheadingSpaced {
+  font-size: 11px;
+  color: #999;
+  font-weight: 600;
+  margin: 8px 0 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* ==========================================
+   5. COLOR FIELD
+   ========================================== */
+
+.colorField {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.colorSwatch {
+  width: 28px;
+  height: 28px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 0;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.colorSwatchDisabled {
+  width: 28px;
+  height: 28px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 0;
+  cursor: not-allowed;
+  opacity: 0.3;
+  flex-shrink: 0;
+}
+
+.colorLabel {
+  font-size: 12px;
+  color: #666;
+  flex: 1;
+  line-height: 1.2;
+}
+
+.colorHexInput {
+  width: 80px;
+  font-size: 11px;
+  font-family: monospace;
+  padding: 3px 6px;
+  border: 1px solid #ddd;
+  border-radius: 3px;
+  color: #333;
+  background: #fafafa;
+}
+
+/* ==========================================
+   6. NUMBER FIELD
+   ========================================== */
+
+.numberField {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.fieldSpacer {
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+}
+
+.fieldLabel {
+  font-size: 12px;
+  color: #666;
+  flex: 1;
+}
+
+.numberInputGroup {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.numberInput {
+  width: 56px;
+  font-size: 11px;
+  font-family: monospace;
+  padding: 3px 6px;
+  border: 1px solid #ddd;
+  border-radius: 3px;
+  color: #333;
+  background: #fafafa;
+}
+
+.numberUnit {
+  font-size: 10px;
+  color: #999;
+}
+
+/* ==========================================
+   7. TEXT FIELD (font family editing)
+   ========================================== */
+
+.textField {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.textInput {
+  width: 160px;
+  font-size: 11px;
+  font-family: monospace;
+  padding: 3px 6px;
+  border: 1px solid #ddd;
+  border-radius: 3px;
+  color: #333;
+  background: #fafafa;
+}
+
+/* ==========================================
+   8. PREVIEW
+   ========================================== */
+
+.preview {
+  border-radius: 12px;
+  padding: 24px;
+  font-family: 'Open Sans', sans-serif;
+  min-height: 480px;
+}
+
+.previewHeading {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.previewSubheading {
+  font-size: 12px;
+  margin-bottom: 16px;
+}
+
+.previewGrid {
+  display: grid;
+  grid-template-columns: 1fr 140px;
+  gap: 16px;
+}
+
+.previewCard {
+  padding: 16px;
+}
+
+.previewCardHeading {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+.previewFieldGroup {
+  margin-bottom: 8px;
+}
+
+.previewFieldLabel {
+  font-size: 11px;
+  display: block;
+  margin-bottom: 3px;
+}
+
+.previewInput {
+  width: 100%;
+  padding: 8px 10px;
+  font-size: 13px;
+  outline: none;
+  box-sizing: border-box;
+  border-style: solid;
+  border-width: 1px;
+}
+
+.previewInput:focus {
+  border-color: var(--input-focus);
+  box-shadow: 0 0 0 2px var(--input-focus-ring);
+}
+
+.previewSelect {
+  width: 100%;
+  padding: 8px 10px;
+  font-size: 13px;
+  box-sizing: border-box;
+  border-style: solid;
+  border-width: 1px;
+}
+
+.previewLink {
+  font-size: 12px;
+  text-decoration: none;
+}
+
+.previewButtonRow {
+  border-top-style: solid;
+  border-top-width: 1px;
+  margin-top: 14px;
+  padding-top: 14px;
+  display: flex;
+  gap: 8px;
+}
+
+.previewPrimaryBtn {
+  flex: 1;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  cursor: pointer;
+  letter-spacing: 0.5px;
+  transition: background 0.15s, border-color 0.15s;
+  border-style: solid;
+  border-width: 1px;
+  background: var(--pri-bg);
+  color: var(--pri-label);
+  border-color: var(--pri-border);
+}
+
+.previewPrimaryBtn:hover {
+  background: var(--pri-hover);
+  border-color: var(--pri-hover);
+}
+
+.previewSecondaryBtn {
+  padding: 0 16px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  cursor: pointer;
+  letter-spacing: 0.5px;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+  border-style: solid;
+  border-width: 1px;
+  background: var(--sec-bg);
+  color: var(--sec-label);
+  border-color: var(--sec-border);
+}
+
+.previewSecondaryBtn:hover {
+  background: var(--sec-hover-bg);
+  color: var(--sec-hover-label);
+  border-color: var(--sec-hover-border);
+}
+
+.previewSidebar {
+  padding: 12px;
+  align-self: start;
+}
+
+.previewSidebarHeading {
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.previewLineItem {
+  border-bottom-style: solid;
+  border-bottom-width: 1px;
+  padding-bottom: 8px;
+  margin-bottom: 8px;
+}
+
+.previewItemName {
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.previewItemQty {
+  font-size: 10px;
+}
+
+.previewItemPrice {
+  font-size: 12px;
+  font-weight: 600;
+  text-align: right;
+}
+
+.previewSummaryRow {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+
+.previewSummaryLabel {
+  font-size: 11px;
+}
+
+.previewSummaryValue {
+  font-size: 11px;
+}
+
+.previewTotalRow {
+  display: flex;
+  justify-content: space-between;
+  border-top-style: solid;
+  border-top-width: 1px;
+  padding-top: 8px;
+  margin-top: 4px;
+}
+
+.previewTotalLabel {
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.previewTotalValue {
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.previewAlertGrid {
+  margin-top: 16px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.previewAlert {
+  padding: 8px 12px;
+  border-style: solid;
+  border-width: 1px;
+}
+
+.previewAlertText {
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.previewFooter {
+  margin-top: 12px;
+  font-size: 10px;
+  text-align: center;
+}
+
+.previewFooterLink {
+  text-decoration: none;
+}
+
+/* ==========================================
+   9. CODE OUTPUT
+   ========================================== */
+
+.codeSection {
+  margin-top: 16px;
+}
+
+.codeButtonRow {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.copyButton {
+  flex: 1;
+  padding: 10px 20px;
+  font-size: 13px;
+  font-weight: 600;
+  background: #111;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.copyButtonSuccess {
+  background: #2e7d32;
+}
+
+.toggleCodeButton {
+  padding: 10px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  background: #fff;
+  color: #333;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.codeBlock {
+  background: #1a1a2e;
+  color: #d8d8e3;
+  padding: 16px;
+  border-radius: 8px;
+  font-size: 11px;
+  line-height: 1.5;
+  overflow-x: auto;
+  max-height: 400px;
+  overflow-y: auto;
+  margin: 0;
+  white-space: pre;
+  font-family: 'SF Mono', 'Fira Code', Consolas, monospace;
+}
+
+.copyFallbackMsg {
+  font-size: 12px;
+  color: #c0392b;
+  background: #fdecea;
+  border: 1px solid #f5c6cb;
+  border-radius: 5px;
+  padding: 8px 12px;
+  margin-bottom: 8px;
+}
+
+/* ==========================================
+   10. RESPONSIVE
+   ========================================== */
+
+@media (max-width: 768px) {
+  .editorGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .controlsPanel {
+    max-height: none;
+    overflow-y: visible;
+    padding-right: 0;
+  }
+
+  .previewGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .editorHeader {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
