@@ -545,10 +545,9 @@ function Preview({ t }) {
       </div>
 
       <div className={styles.previewFooter} style={{ color: t.pageTextLight }}>
-        Powered by{" "}
+        by{" "}
         <a
-          href="#"
-          onClick={e => e.preventDefault()}
+          href="https://foxy.io"
           className={styles.previewFooterLink}
           style={{ color: t.linkColor }}
         >
