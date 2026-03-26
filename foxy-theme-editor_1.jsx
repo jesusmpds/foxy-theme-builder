@@ -24,14 +24,12 @@ const DEFAULT_TOKENS = {
   pageBackground: "#f8f8f8",
   pageText: "#000000",
   pageTextSecondary: "#666666",
-  pageTextLight: "#999999",
   pageHeadingColor: "#000000",
   radius: "5",
   maxWidth: "1200",
 
   cardBackground: "#ffffff",
   cardBorder: "#eeeeee",
-  cardBorderStrong: "#cccccc",
 
   buttonPrimaryBackground: "#3d9c9e",
   buttonPrimaryLabel: "#ffffff",
@@ -79,11 +77,9 @@ const DARK_PRESET = {
   pageBackground: "#0e0e1a",
   pageText: "#d8d8e3",
   pageTextSecondary: "#8585a0",
-  pageTextLight: "#5c5c78",
   pageHeadingColor: "#ededf2",
   cardBackground: "#1a1a2e",
   cardBorder: "#2a2a42",
-  cardBorderStrong: "#3a3a55",
   buttonPrimaryBackground: "#4ecdc4",
   buttonPrimaryLabel: "#0e0e1a",
   buttonPrimaryBorder: "#4ecdc4",
@@ -148,7 +144,6 @@ function generateCSS(t) {
   --foxy-page-background:                  ${t.pageBackground};
   --foxy-page-text:                        ${t.pageText};
   --foxy-page-text-secondary:              ${t.pageTextSecondary};
-  --foxy-page-text-light:                  ${t.pageTextLight};
   --foxy-page-heading-color:               ${t.pageHeadingColor};
   --foxy-radius:                           ${t.radius}px;
   --foxy-max-width:                        ${t.maxWidth}px;
@@ -162,7 +157,6 @@ function generateCSS(t) {
 
   --foxy-card-background:                  ${t.cardBackground};
   --foxy-card-border:                      ${t.cardBorder};
-  --foxy-card-border-strong:               ${t.cardBorderStrong};
 
 
   /* =========================================== */
@@ -544,7 +538,7 @@ function Preview({ t }) {
         ))}
       </div>
 
-      <div className={styles.previewFooter} style={{ color: t.pageTextLight }}>
+      <div className={styles.previewFooter} style={{ color: t.pageTextSecondary }}>
         by{" "}
         <a
           href="https://foxy.io"
@@ -745,12 +739,6 @@ export default function FoxyThemeEditor() {
               onChange={update}
             />
             <ColorField
-              label="Text light"
-              value={tokens.pageTextLight}
-              tokenKey="pageTextLight"
-              onChange={update}
-            />
-            <ColorField
               label="Heading color"
               value={tokens.pageHeadingColor}
               tokenKey="pageHeadingColor"
@@ -781,12 +769,6 @@ export default function FoxyThemeEditor() {
               label="Border"
               value={tokens.cardBorder}
               tokenKey="cardBorder"
-              onChange={update}
-            />
-            <ColorField
-              label="Border strong"
-              value={tokens.cardBorderStrong}
-              tokenKey="cardBorderStrong"
               onChange={update}
             />
           </Section>
