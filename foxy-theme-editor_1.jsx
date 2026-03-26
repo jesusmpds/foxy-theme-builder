@@ -652,7 +652,7 @@ export default function FoxyThemeEditor() {
         <div>
           <h1 className={styles.editorTitle}>Foxy Theme Editor</h1>
           <p className={styles.editorSubtitle}>
-            Customize your checkout, then copy the CSS into your Foxy template header.
+            Customize your template styles, then copy the CSS into your Foxy custom header.
           </p>
         </div>
         <div className={styles.headerButtons}>
