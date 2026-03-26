@@ -1,5 +1,18 @@
-import { useState, useCallback, useRef, useMemo } from "react";
+import { useState, useCallback, useRef, useMemo, useEffect } from "react";
 import styles from "./foxy-theme-editor.module.css";
+
+function extractFontName(fontFamily) {
+  const match = fontFamily.match(/["']([^"']+)["']/);
+  return match ? match[1] : null;
+}
+
+function buildGoogleFontsUrl(fontNames, weights) {
+  const unique = [...new Set(fontNames.filter(Boolean))];
+  if (unique.length === 0) return null;
+  const wStr = weights.sort().join(";");
+  const params = unique.map(f => `family=${encodeURIComponent(f)}:wght@${wStr}`).join("&");
+  return `https://fonts.googleapis.com/css2?${params}&display=swap`;
+}
 
 const DEFAULT_TOKENS = {
   fontBody: '"Open Sans", sans-serif',
@@ -23,7 +36,9 @@ const DEFAULT_TOKENS = {
   buttonPrimaryBackground: "#3d9c9e",
   buttonPrimaryLabel: "#ffffff",
   buttonPrimaryBorder: "#3d9c9e",
-  buttonPrimaryHover: "#217f81",
+  buttonPrimaryHoverBackground: "#217f81",
+  buttonPrimaryHoverLabel: "#ffffff",
+  buttonPrimaryHoverBorder: "#217f81",
   buttonHeight: "40",
 
   buttonSecondaryBackground: "transparent",
@@ -72,7 +87,9 @@ const DARK_PRESET = {
   buttonPrimaryBackground: "#4ecdc4",
   buttonPrimaryLabel: "#0e0e1a",
   buttonPrimaryBorder: "#4ecdc4",
-  buttonPrimaryHover: "#45b7af",
+  buttonPrimaryHoverBackground: "#45b7af",
+  buttonPrimaryHoverLabel: "#0e0e1a",
+  buttonPrimaryHoverBorder: "#45b7af",
   buttonSecondaryLabel: "#d8d8e3",
   buttonSecondaryBorder: "#3a3a55",
   buttonSecondaryHoverBackground: "#4ecdc4",
@@ -102,7 +119,13 @@ const DARK_PRESET = {
 };
 
 function generateCSS(t) {
-  return `#fc {
+  const bodyFont = extractFontName(t.fontBody);
+  const headingFont = extractFontName(t.fontHeading);
+  const weights = [t.fontWeightNormal, t.fontWeightSemi, t.fontWeightBold];
+  const fontsUrl = buildGoogleFontsUrl([bodyFont, headingFont], weights);
+  const importLine = fontsUrl ? `@import url('${fontsUrl}');\n\n` : "";
+
+  return `${importLine}#fc {
 
   /* =========================================== */
   /* 1. FONTS                                   */
@@ -151,7 +174,9 @@ function generateCSS(t) {
   --foxy-button-primary-background:        ${t.buttonPrimaryBackground};
   --foxy-button-primary-label:             ${t.buttonPrimaryLabel};
   --foxy-button-primary-border:            ${t.buttonPrimaryBorder};
-  --foxy-button-primary-hover:             ${t.buttonPrimaryHover};
+  --foxy-button-primary-hover-background:  ${t.buttonPrimaryHoverBackground};
+  --foxy-button-primary-hover-label:       ${t.buttonPrimaryHoverLabel};
+  --foxy-button-primary-hover-border:      ${t.buttonPrimaryHoverBorder};
   --foxy-button-height:                    ${t.buttonHeight}px;
 
   /* =========================================== */
@@ -236,7 +261,7 @@ function ColorField({ label, value, tokenKey, onChange }) {
         type="color"
         value={isTransparent ? "#ffffff" : value}
         disabled={isTransparent}
-        onChange={(e) => onChange(tokenKey, e.target.value)}
+        onChange={e => onChange(tokenKey, e.target.value)}
         className={isTransparent ? styles.colorSwatchDisabled : styles.colorSwatch}
         aria-label={`${label} color picker`}
       />
@@ -244,7 +269,7 @@ function ColorField({ label, value, tokenKey, onChange }) {
       <input
         type="text"
         value={value}
-        onChange={(e) => onChange(tokenKey, e.target.value)}
+        onChange={e => onChange(tokenKey, e.target.value)}
         className={styles.colorHexInput}
         aria-label={`${label} hex value`}
       />
@@ -261,7 +286,7 @@ function NumberField({ label, value, tokenKey, onChange, unit = "px" }) {
         <input
           type="number"
           value={value}
-          onChange={(e) => onChange(tokenKey, e.target.value)}
+          onChange={e => onChange(tokenKey, e.target.value)}
           className={styles.numberInput}
           aria-label={label}
         />
@@ -279,7 +304,7 @@ function TextField({ label, value, tokenKey, onChange }) {
       <input
         type="text"
         value={value}
-        onChange={(e) => onChange(tokenKey, e.target.value)}
+        onChange={e => onChange(tokenKey, e.target.value)}
         className={styles.textInput}
         aria-label={label}
       />
@@ -291,11 +316,7 @@ function Section({ title, subtitle, children }) {
   const [open, setOpen] = useState(true);
   return (
     <div className={styles.sectionWrapper}>
-      <button
-        onClick={() => setOpen(!open)}
-        className={styles.sectionButton}
-        aria-expanded={open}
-      >
+      <button onClick={() => setOpen(!open)} className={styles.sectionButton} aria-expanded={open}>
         <span className={`${styles.sectionArrow} ${open ? styles.sectionArrowOpen : ""}`}>
           &#9654;
         </span>
@@ -316,11 +337,15 @@ function Preview({ t }) {
       className={styles.preview}
       style={{
         background: t.pageBackground,
+        maxWidth: parseInt(t.maxWidth) || 1200,
+        fontFamily: t.fontBody,
         /* CSS custom properties for dynamic hover/focus states */
         "--pri-bg": t.buttonPrimaryBackground,
         "--pri-label": t.buttonPrimaryLabel,
         "--pri-border": t.buttonPrimaryBorder,
-        "--pri-hover": t.buttonPrimaryHover,
+        "--pri-hover": t.buttonPrimaryHoverBackground,
+        "--pri-hover-label": t.buttonPrimaryHoverLabel,
+        "--pri-hover-border": t.buttonPrimaryHoverBorder,
         "--sec-bg": t.buttonSecondaryBackground,
         "--sec-label": t.buttonSecondaryLabel,
         "--sec-border": t.buttonSecondaryBorder,
@@ -329,9 +354,13 @@ function Preview({ t }) {
         "--sec-hover-border": t.buttonSecondaryHoverBorder,
         "--input-focus": t.inputFocus,
         "--input-focus-ring": `${t.inputFocus}26`,
+        "--icon-on-btn": t.iconColorOnButton,
       }}
     >
-      <div className={styles.previewHeading} style={{ color: t.pageHeadingColor }}>
+      <div
+        className={styles.previewHeading}
+        style={{ color: t.pageHeadingColor, fontFamily: t.fontHeading }}
+      >
         Checkout Preview
       </div>
       <div className={styles.previewSubheading} style={{ color: t.pageTextSecondary }}>
@@ -341,7 +370,10 @@ function Preview({ t }) {
       <div className={styles.previewGrid}>
         <div style={{ background: t.cardBackground, borderRadius: r }}>
           <div className={styles.previewCard}>
-            <div className={styles.previewCardHeading} style={{ color: t.pageHeadingColor }}>
+            <div
+              className={styles.previewCardHeading}
+              style={{ color: t.pageHeadingColor, fontFamily: t.fontHeading }}
+            >
               Shipping Details
             </div>
 
@@ -399,22 +431,24 @@ function Preview({ t }) {
 
             <a
               href="#"
-              onClick={(e) => e.preventDefault()}
+              onClick={e => e.preventDefault()}
               className={styles.previewLink}
               style={{ color: t.linkColor }}
             >
               Use a different address
             </a>
 
-            <div
-              className={styles.previewButtonRow}
-              style={{ borderTopColor: t.cardBorder }}
-            >
-              <button
-                className={styles.previewPrimaryBtn}
-                style={{ borderRadius: r, height: bh }}
-              >
+            <div className={styles.previewButtonRow} style={{ borderTopColor: t.cardBorder }}>
+              <button className={styles.previewPrimaryBtn} style={{ borderRadius: r, height: bh }}>
                 Submit Order
+                <svg
+                  className={styles.previewIcon}
+                  viewBox="0 0 20 20"
+                  fill="var(--icon-on-btn)"
+                  aria-hidden="true"
+                >
+                  <path d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" />
+                </svg>
               </button>
               <button
                 className={styles.previewSecondaryBtn}
@@ -430,34 +464,63 @@ function Preview({ t }) {
           className={styles.previewSidebar}
           style={{ background: t.cardBackground, borderRadius: r }}
         >
-          <div className={styles.previewSidebarHeading} style={{ color: t.pageHeadingColor }}>
+          <div
+            className={styles.previewSidebarHeading}
+            style={{ color: t.pageHeadingColor, fontFamily: t.fontHeading }}
+          >
+            <svg
+              className={styles.previewIcon}
+              viewBox="0 0 20 20"
+              fill={t.iconColor}
+              aria-hidden="true"
+            >
+              <path d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 3H6.28l-.31-1.243A1 1 0 005 1H3zm13 15.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM6.5 18a1.5 1.5 0 100-3 1.5 1.5 0 000 3z" />
+            </svg>
             Order Summary
           </div>
-          {[["Narwhal Tee", "$24.99"], ["Shark Hoodie", "$39.99"]].map(([name, price]) => (
+          {[
+            ["Narwhal Tee", "$24.99"],
+            ["Shark Hoodie", "$39.99"],
+          ].map(([name, price]) => (
             <div
               key={name}
               className={styles.previewLineItem}
               style={{ borderBottomColor: t.cardBorder }}
             >
-              <div className={styles.previewItemName} style={{ color: t.pageText }}>{name}</div>
-              <div className={styles.previewItemQty} style={{ color: t.pageTextSecondary }}>Qty: 1</div>
-              <div className={styles.previewItemPrice} style={{ color: t.pageText }}>{price}</div>
+              <div className={styles.previewItemName} style={{ color: t.pageText }}>
+                {name}
+              </div>
+              <div className={styles.previewItemQty} style={{ color: t.pageTextSecondary }}>
+                Qty: 1
+              </div>
+              <div className={styles.previewItemPrice} style={{ color: t.pageText }}>
+                {price}
+              </div>
             </div>
           ))}
           <div className={styles.previewSummaryRow}>
-            <span className={styles.previewSummaryLabel} style={{ color: t.pageTextSecondary }}>Subtotal</span>
-            <span className={styles.previewSummaryValue} style={{ color: t.pageText }}>$64.98</span>
+            <span className={styles.previewSummaryLabel} style={{ color: t.pageTextSecondary }}>
+              Subtotal
+            </span>
+            <span className={styles.previewSummaryValue} style={{ color: t.pageText }}>
+              $64.98
+            </span>
           </div>
           <div className={styles.previewSummaryRow}>
-            <span className={styles.previewSummaryLabel} style={{ color: t.discountColor }}>Discount</span>
-            <span className={styles.previewSummaryValue} style={{ color: t.discountColor }}>-$5.00</span>
+            <span className={styles.previewSummaryLabel} style={{ color: t.discountColor }}>
+              Discount
+            </span>
+            <span className={styles.previewSummaryValue} style={{ color: t.discountColor }}>
+              -$5.00
+            </span>
           </div>
-          <div
-            className={styles.previewTotalRow}
-            style={{ borderTopColor: t.cardBorder }}
-          >
-            <span className={styles.previewTotalLabel} style={{ color: t.pageText }}>Total</span>
-            <span className={styles.previewTotalValue} style={{ color: t.pageText }}>$59.98</span>
+          <div className={styles.previewTotalRow} style={{ borderTopColor: t.cardBorder }}>
+            <span className={styles.previewTotalLabel} style={{ color: t.pageText }}>
+              Total
+            </span>
+            <span className={styles.previewTotalValue} style={{ color: t.pageText }}>
+              $59.98
+            </span>
           </div>
         </div>
       </div>
@@ -474,7 +537,9 @@ function Preview({ t }) {
             className={styles.previewAlert}
             style={{ background: bg, borderColor: bd, borderRadius: r }}
           >
-            <span className={styles.previewAlertText} style={{ color: txt }}>{msg}</span>
+            <span className={styles.previewAlertText} style={{ color: txt }}>
+              {msg}
+            </span>
           </div>
         ))}
       </div>
@@ -483,7 +548,7 @@ function Preview({ t }) {
         Powered by{" "}
         <a
           href="#"
-          onClick={(e) => e.preventDefault()}
+          onClick={e => e.preventDefault()}
           className={styles.previewFooterLink}
           style={{ color: t.linkColor }}
         >
@@ -503,10 +568,36 @@ export default function FoxyThemeEditor() {
   const fileInputRef = useRef(null);
 
   const update = useCallback((key, value) => {
-    setTokens((prev) => ({ ...prev, [key]: value }));
+    setTokens(prev => ({ ...prev, [key]: value }));
   }, []);
 
   const css = useMemo(() => generateCSS(tokens), [tokens]);
+
+  useEffect(() => {
+    const bodyFont = extractFontName(tokens.fontBody);
+    const headingFont = extractFontName(tokens.fontHeading);
+    const weights = [tokens.fontWeightNormal, tokens.fontWeightSemi, tokens.fontWeightBold];
+    const url = buildGoogleFontsUrl([bodyFont, headingFont], weights);
+
+    let link = document.getElementById("foxy-google-fonts");
+    if (!url) {
+      if (link) link.remove();
+      return;
+    }
+    if (!link) {
+      link = document.createElement("link");
+      link.id = "foxy-google-fonts";
+      link.rel = "stylesheet";
+      document.head.appendChild(link);
+    }
+    link.href = url;
+  }, [
+    tokens.fontBody,
+    tokens.fontHeading,
+    tokens.fontWeightNormal,
+    tokens.fontWeightSemi,
+    tokens.fontWeightBold,
+  ]);
 
   const handleCopy = async () => {
     try {
@@ -540,11 +631,11 @@ export default function FoxyThemeEditor() {
     fileInputRef.current?.click();
   }, []);
 
-  const handleFileChange = useCallback((e) => {
+  const handleFileChange = useCallback(e => {
     const file = e.target.files?.[0];
     if (!file) return;
     const reader = new FileReader();
-    reader.onload = (ev) => {
+    reader.onload = ev => {
       try {
         const imported = JSON.parse(ev.target.result);
         setTokens({ ...DEFAULT_TOKENS, ...imported });
@@ -600,81 +691,331 @@ export default function FoxyThemeEditor() {
       <div className={styles.editorGrid}>
         <div className={styles.controlsPanel}>
           <Section title="Fonts" subtitle="Typefaces & weights">
-            <TextField label="Body font" value={tokens.fontBody} tokenKey="fontBody" onChange={update} />
-            <TextField label="Heading font" value={tokens.fontHeading} tokenKey="fontHeading" onChange={update} />
-            <NumberField label="Weight normal" value={tokens.fontWeightNormal} tokenKey="fontWeightNormal" onChange={update} unit="" />
-            <NumberField label="Weight semi" value={tokens.fontWeightSemi} tokenKey="fontWeightSemi" onChange={update} unit="" />
-            <NumberField label="Weight bold" value={tokens.fontWeightBold} tokenKey="fontWeightBold" onChange={update} unit="" />
+            <TextField
+              label="Body font"
+              value={tokens.fontBody}
+              tokenKey="fontBody"
+              onChange={update}
+            />
+            <TextField
+              label="Heading font"
+              value={tokens.fontHeading}
+              tokenKey="fontHeading"
+              onChange={update}
+            />
+            <NumberField
+              label="Weight normal"
+              value={tokens.fontWeightNormal}
+              tokenKey="fontWeightNormal"
+              onChange={update}
+              unit=""
+            />
+            <NumberField
+              label="Weight semi"
+              value={tokens.fontWeightSemi}
+              tokenKey="fontWeightSemi"
+              onChange={update}
+              unit=""
+            />
+            <NumberField
+              label="Weight bold"
+              value={tokens.fontWeightBold}
+              tokenKey="fontWeightBold"
+              onChange={update}
+              unit=""
+            />
           </Section>
 
           <Section title="Page" subtitle="Background & text">
-            <ColorField label="Background" value={tokens.pageBackground} tokenKey="pageBackground" onChange={update} />
-            <ColorField label="Text" value={tokens.pageText} tokenKey="pageText" onChange={update} />
-            <ColorField label="Text secondary" value={tokens.pageTextSecondary} tokenKey="pageTextSecondary" onChange={update} />
-            <ColorField label="Text light" value={tokens.pageTextLight} tokenKey="pageTextLight" onChange={update} />
-            <ColorField label="Heading color" value={tokens.pageHeadingColor} tokenKey="pageHeadingColor" onChange={update} />
-            <NumberField label="Border radius" value={tokens.radius} tokenKey="radius" onChange={update} />
-            <NumberField label="Max width" value={tokens.maxWidth} tokenKey="maxWidth" onChange={update} />
+            <ColorField
+              label="Background"
+              value={tokens.pageBackground}
+              tokenKey="pageBackground"
+              onChange={update}
+            />
+            <ColorField
+              label="Text"
+              value={tokens.pageText}
+              tokenKey="pageText"
+              onChange={update}
+            />
+            <ColorField
+              label="Text secondary"
+              value={tokens.pageTextSecondary}
+              tokenKey="pageTextSecondary"
+              onChange={update}
+            />
+            <ColorField
+              label="Text light"
+              value={tokens.pageTextLight}
+              tokenKey="pageTextLight"
+              onChange={update}
+            />
+            <ColorField
+              label="Heading color"
+              value={tokens.pageHeadingColor}
+              tokenKey="pageHeadingColor"
+              onChange={update}
+            />
+            <NumberField
+              label="Border radius"
+              value={tokens.radius}
+              tokenKey="radius"
+              onChange={update}
+            />
+            <NumberField
+              label="Max width"
+              value={tokens.maxWidth}
+              tokenKey="maxWidth"
+              onChange={update}
+            />
           </Section>
 
           <Section title="Cards" subtitle="Panels & containers">
-            <ColorField label="Background" value={tokens.cardBackground} tokenKey="cardBackground" onChange={update} />
-            <ColorField label="Border" value={tokens.cardBorder} tokenKey="cardBorder" onChange={update} />
-            <ColorField label="Border strong" value={tokens.cardBorderStrong} tokenKey="cardBorderStrong" onChange={update} />
+            <ColorField
+              label="Background"
+              value={tokens.cardBackground}
+              tokenKey="cardBackground"
+              onChange={update}
+            />
+            <ColorField
+              label="Border"
+              value={tokens.cardBorder}
+              tokenKey="cardBorder"
+              onChange={update}
+            />
+            <ColorField
+              label="Border strong"
+              value={tokens.cardBorderStrong}
+              tokenKey="cardBorderStrong"
+              onChange={update}
+            />
           </Section>
 
           <Section title="Primary button" subtitle="Checkout, Submit, Go!">
-            <ColorField label="Background" value={tokens.buttonPrimaryBackground} tokenKey="buttonPrimaryBackground" onChange={update} />
-            <ColorField label="Label" value={tokens.buttonPrimaryLabel} tokenKey="buttonPrimaryLabel" onChange={update} />
-            <ColorField label="Border" value={tokens.buttonPrimaryBorder} tokenKey="buttonPrimaryBorder" onChange={update} />
-            <ColorField label="Hover" value={tokens.buttonPrimaryHover} tokenKey="buttonPrimaryHover" onChange={update} />
-            <NumberField label="Height" value={tokens.buttonHeight} tokenKey="buttonHeight" onChange={update} />
+            <ColorField
+              label="Background"
+              value={tokens.buttonPrimaryBackground}
+              tokenKey="buttonPrimaryBackground"
+              onChange={update}
+            />
+            <ColorField
+              label="Label"
+              value={tokens.buttonPrimaryLabel}
+              tokenKey="buttonPrimaryLabel"
+              onChange={update}
+            />
+            <ColorField
+              label="Border"
+              value={tokens.buttonPrimaryBorder}
+              tokenKey="buttonPrimaryBorder"
+              onChange={update}
+            />
+            <ColorField
+              label="Hover fill"
+              value={tokens.buttonPrimaryHoverBackground}
+              tokenKey="buttonPrimaryHoverBackground"
+              onChange={update}
+            />
+            <ColorField
+              label="Hover label"
+              value={tokens.buttonPrimaryHoverLabel}
+              tokenKey="buttonPrimaryHoverLabel"
+              onChange={update}
+            />
+            <ColorField
+              label="Hover border"
+              value={tokens.buttonPrimaryHoverBorder}
+              tokenKey="buttonPrimaryHoverBorder"
+              onChange={update}
+            />
+            <NumberField
+              label="Height"
+              value={tokens.buttonHeight}
+              tokenKey="buttonHeight"
+              onChange={update}
+            />
           </Section>
 
           <Section title="Secondary button" subtitle="Continue Shopping, Print">
-            <ColorField label="Background" value={tokens.buttonSecondaryBackground} tokenKey="buttonSecondaryBackground" onChange={update} />
-            <ColorField label="Label" value={tokens.buttonSecondaryLabel} tokenKey="buttonSecondaryLabel" onChange={update} />
-            <ColorField label="Border" value={tokens.buttonSecondaryBorder} tokenKey="buttonSecondaryBorder" onChange={update} />
-            <ColorField label="Hover fill" value={tokens.buttonSecondaryHoverBackground} tokenKey="buttonSecondaryHoverBackground" onChange={update} />
-            <ColorField label="Hover label" value={tokens.buttonSecondaryHoverLabel} tokenKey="buttonSecondaryHoverLabel" onChange={update} />
-            <ColorField label="Hover border" value={tokens.buttonSecondaryHoverBorder} tokenKey="buttonSecondaryHoverBorder" onChange={update} />
+            <ColorField
+              label="Background"
+              value={tokens.buttonSecondaryBackground}
+              tokenKey="buttonSecondaryBackground"
+              onChange={update}
+            />
+            <ColorField
+              label="Label"
+              value={tokens.buttonSecondaryLabel}
+              tokenKey="buttonSecondaryLabel"
+              onChange={update}
+            />
+            <ColorField
+              label="Border"
+              value={tokens.buttonSecondaryBorder}
+              tokenKey="buttonSecondaryBorder"
+              onChange={update}
+            />
+            <ColorField
+              label="Hover fill"
+              value={tokens.buttonSecondaryHoverBackground}
+              tokenKey="buttonSecondaryHoverBackground"
+              onChange={update}
+            />
+            <ColorField
+              label="Hover label"
+              value={tokens.buttonSecondaryHoverLabel}
+              tokenKey="buttonSecondaryHoverLabel"
+              onChange={update}
+            />
+            <ColorField
+              label="Hover border"
+              value={tokens.buttonSecondaryHoverBorder}
+              tokenKey="buttonSecondaryHoverBorder"
+              onChange={update}
+            />
           </Section>
 
           <Section title="Text fields" subtitle="Inputs, selects, quantity">
-            <ColorField label="Background" value={tokens.inputBackground} tokenKey="inputBackground" onChange={update} />
-            <ColorField label="Text" value={tokens.inputText} tokenKey="inputText" onChange={update} />
-            <ColorField label="Border" value={tokens.inputBorder} tokenKey="inputBorder" onChange={update} />
-            <ColorField label="Focus color" value={tokens.inputFocus} tokenKey="inputFocus" onChange={update} />
+            <ColorField
+              label="Background"
+              value={tokens.inputBackground}
+              tokenKey="inputBackground"
+              onChange={update}
+            />
+            <ColorField
+              label="Text"
+              value={tokens.inputText}
+              tokenKey="inputText"
+              onChange={update}
+            />
+            <ColorField
+              label="Border"
+              value={tokens.inputBorder}
+              tokenKey="inputBorder"
+              onChange={update}
+            />
+            <ColorField
+              label="Focus color"
+              value={tokens.inputFocus}
+              tokenKey="inputFocus"
+              onChange={update}
+            />
           </Section>
 
           <Section title="Links" subtitle="Clickable text">
-            <ColorField label="Color" value={tokens.linkColor} tokenKey="linkColor" onChange={update} />
-            <ColorField label="Hover" value={tokens.linkHover} tokenKey="linkHover" onChange={update} />
+            <ColorField
+              label="Color"
+              value={tokens.linkColor}
+              tokenKey="linkColor"
+              onChange={update}
+            />
+            <ColorField
+              label="Hover"
+              value={tokens.linkHover}
+              tokenKey="linkHover"
+              onChange={update}
+            />
           </Section>
 
           <Section title="Alerts" subtitle="Success, warning, info, error">
             <div className={styles.sectionSubheading}>Success</div>
-            <ColorField label="Background" value={tokens.successBackground} tokenKey="successBackground" onChange={update} />
-            <ColorField label="Border" value={tokens.successBorder} tokenKey="successBorder" onChange={update} />
-            <ColorField label="Text" value={tokens.successText} tokenKey="successText" onChange={update} />
+            <ColorField
+              label="Background"
+              value={tokens.successBackground}
+              tokenKey="successBackground"
+              onChange={update}
+            />
+            <ColorField
+              label="Border"
+              value={tokens.successBorder}
+              tokenKey="successBorder"
+              onChange={update}
+            />
+            <ColorField
+              label="Text"
+              value={tokens.successText}
+              tokenKey="successText"
+              onChange={update}
+            />
             <div className={styles.sectionSubheadingSpaced}>Warning</div>
-            <ColorField label="Background" value={tokens.warningBackground} tokenKey="warningBackground" onChange={update} />
-            <ColorField label="Border" value={tokens.warningBorder} tokenKey="warningBorder" onChange={update} />
-            <ColorField label="Text" value={tokens.warningText} tokenKey="warningText" onChange={update} />
+            <ColorField
+              label="Background"
+              value={tokens.warningBackground}
+              tokenKey="warningBackground"
+              onChange={update}
+            />
+            <ColorField
+              label="Border"
+              value={tokens.warningBorder}
+              tokenKey="warningBorder"
+              onChange={update}
+            />
+            <ColorField
+              label="Text"
+              value={tokens.warningText}
+              tokenKey="warningText"
+              onChange={update}
+            />
             <div className={styles.sectionSubheadingSpaced}>Info</div>
-            <ColorField label="Background" value={tokens.infoBackground} tokenKey="infoBackground" onChange={update} />
-            <ColorField label="Border" value={tokens.infoBorder} tokenKey="infoBorder" onChange={update} />
-            <ColorField label="Text" value={tokens.infoText} tokenKey="infoText" onChange={update} />
+            <ColorField
+              label="Background"
+              value={tokens.infoBackground}
+              tokenKey="infoBackground"
+              onChange={update}
+            />
+            <ColorField
+              label="Border"
+              value={tokens.infoBorder}
+              tokenKey="infoBorder"
+              onChange={update}
+            />
+            <ColorField
+              label="Text"
+              value={tokens.infoText}
+              tokenKey="infoText"
+              onChange={update}
+            />
             <div className={styles.sectionSubheadingSpaced}>Error</div>
-            <ColorField label="Background" value={tokens.dangerBackground} tokenKey="dangerBackground" onChange={update} />
-            <ColorField label="Border" value={tokens.dangerBorder} tokenKey="dangerBorder" onChange={update} />
-            <ColorField label="Text" value={tokens.dangerText} tokenKey="dangerText" onChange={update} />
+            <ColorField
+              label="Background"
+              value={tokens.dangerBackground}
+              tokenKey="dangerBackground"
+              onChange={update}
+            />
+            <ColorField
+              label="Border"
+              value={tokens.dangerBorder}
+              tokenKey="dangerBorder"
+              onChange={update}
+            />
+            <ColorField
+              label="Text"
+              value={tokens.dangerText}
+              tokenKey="dangerText"
+              onChange={update}
+            />
           </Section>
 
           <Section title="Extras" subtitle="Discounts, icons">
-            <ColorField label="Discount color" value={tokens.discountColor} tokenKey="discountColor" onChange={update} />
-            <ColorField label="Icon color" value={tokens.iconColor} tokenKey="iconColor" onChange={update} />
-            <ColorField label="Icon on button" value={tokens.iconColorOnButton} tokenKey="iconColorOnButton" onChange={update} />
+            <ColorField
+              label="Discount color"
+              value={tokens.discountColor}
+              tokenKey="discountColor"
+              onChange={update}
+            />
+            <ColorField
+              label="Icon color"
+              value={tokens.iconColor}
+              tokenKey="iconColor"
+              onChange={update}
+            />
+            <ColorField
+              label="Icon on button"
+              value={tokens.iconColorOnButton}
+              tokenKey="iconColorOnButton"
+              onChange={update}
+            />
           </Section>
         </div>
 
@@ -689,16 +1030,14 @@ export default function FoxyThemeEditor() {
               >
                 {copied ? "Copied to clipboard!" : "Copy CSS to clipboard"}
               </button>
-              <button
-                onClick={() => setShowCode(!showCode)}
-                className={styles.toggleCodeButton}
-              >
+              <button onClick={() => setShowCode(!showCode)} className={styles.toggleCodeButton}>
                 {showCode ? "Hide" : "Show"} CSS
               </button>
             </div>
             {copyFallback && (
               <div className={styles.copyFallbackMsg}>
-                Auto-copy not available — the CSS is selected above. Press Ctrl+C (or Cmd+C) to copy.
+                Auto-copy not available — the CSS is selected above. Press Ctrl+C (or Cmd+C) to
+                copy.
               </div>
             )}
             {showCode && (

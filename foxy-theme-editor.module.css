@@ -378,11 +378,16 @@
   background: var(--pri-bg);
   color: var(--pri-label);
   border-color: var(--pri-border);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
 }
 
 .previewPrimaryBtn:hover {
   background: var(--pri-hover);
-  border-color: var(--pri-hover);
+  color: var(--pri-hover-label);
+  border-color: var(--pri-hover-border);
 }
 
 .previewSecondaryBtn {
@@ -411,10 +416,20 @@
   align-self: start;
 }
 
+.previewIcon {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  vertical-align: -1px;
+}
+
 .previewSidebarHeading {
   font-size: 12px;
   font-weight: 600;
   margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
 }
 
 .previewLineItem {
