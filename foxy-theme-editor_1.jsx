@@ -348,16 +348,18 @@ function Preview({ t }) {
         "--sec-hover-border": t.buttonSecondaryHoverBorder,
         "--input-focus": t.inputFocus,
         "--input-focus-ring": `${t.inputFocus}26`,
+        "--icon-color": t.iconColor,
         "--icon-on-btn": t.iconColorOnButton,
+        "--link-color": t.linkColor,
       }}
     >
       <div
         className={styles.previewHeading}
-        style={{ color: t.pageHeadingColor, fontFamily: t.fontHeading }}
+        style={{ color: t.pageHeadingColor, fontFamily: t.fontHeading, fontWeight: t.fontWeightSemi }}
       >
         Checkout Preview
       </div>
-      <div className={styles.previewSubheading} style={{ color: t.pageTextSecondary }}>
+      <div className={styles.previewSubheading} style={{ color: t.pageTextSecondary, fontWeight: t.fontWeightNormal }}>
         See your changes live as you edit
       </div>
 
@@ -366,13 +368,13 @@ function Preview({ t }) {
           <div className={styles.previewCard}>
             <div
               className={styles.previewCardHeading}
-              style={{ color: t.pageHeadingColor, fontFamily: t.fontHeading }}
+              style={{ color: t.pageHeadingColor, fontFamily: t.fontHeading, fontWeight: t.fontWeightSemi }}
             >
               Shipping Details
             </div>
 
             <div className={styles.previewFieldGroup}>
-              <label className={styles.previewFieldLabel} style={{ color: t.pageTextSecondary }}>
+              <label className={styles.previewFieldLabel} style={{ color: t.pageText }}>
                 Full Name
               </label>
               <input
@@ -389,7 +391,7 @@ function Preview({ t }) {
             </div>
 
             <div className={styles.previewFieldGroup}>
-              <label className={styles.previewFieldLabel} style={{ color: t.pageTextSecondary }}>
+              <label className={styles.previewFieldLabel} style={{ color: t.pageText }}>
                 Email
               </label>
               <input
@@ -407,7 +409,7 @@ function Preview({ t }) {
             </div>
 
             <div style={{ marginBottom: 12 }}>
-              <label className={styles.previewFieldLabel} style={{ color: t.pageTextSecondary }}>
+              <label className={styles.previewFieldLabel} style={{ color: t.pageText }}>
                 Country
               </label>
               <select
@@ -448,8 +450,22 @@ function Preview({ t }) {
                 className={styles.previewSecondaryBtn}
                 style={{ borderRadius: r, height: bh }}
               >
+                <svg
+                  className={styles.previewIcon}
+                  viewBox="0 0 20 20"
+                  aria-hidden="true"
+                >
+                  <path d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" />
+                </svg>
                 Back
               </button>
+            </div>
+
+            <div className={styles.previewHelperText} style={{ color: t.pageTextSecondary }}>
+              <svg className={styles.previewIconSmall} viewBox="0 0 20 20" fill={t.iconColor} aria-hidden="true">
+                <path d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" />
+              </svg>
+              Secured by Foxy.io
             </div>
           </div>
         </div>
@@ -460,7 +476,7 @@ function Preview({ t }) {
         >
           <div
             className={styles.previewSidebarHeading}
-            style={{ color: t.pageHeadingColor, fontFamily: t.fontHeading }}
+            style={{ color: t.pageHeadingColor, fontFamily: t.fontHeading, fontWeight: t.fontWeightSemi }}
           >
             <svg
               className={styles.previewIcon}
@@ -481,7 +497,7 @@ function Preview({ t }) {
               className={styles.previewLineItem}
               style={{ borderBottomColor: t.cardBorder }}
             >
-              <div className={styles.previewItemName} style={{ color: t.pageText }}>
+              <div className={styles.previewItemName} style={{ color: t.pageText, fontWeight: t.fontWeightSemi }}>
                 {name}
               </div>
               <div className={styles.previewItemQty} style={{ color: t.pageTextSecondary }}>
@@ -490,8 +506,37 @@ function Preview({ t }) {
               <div className={styles.previewItemPrice} style={{ color: t.pageText }}>
                 {price}
               </div>
+              <a
+                href="#"
+                onClick={e => e.preventDefault()}
+                className={styles.previewRemoveLink}
+                style={{ color: t.pageTextSecondary }}
+              >
+                Remove
+              </a>
             </div>
           ))}
+
+          <div className={styles.previewCouponRow}>
+            <input
+              className={styles.previewCouponInput}
+              placeholder="Coupon code"
+              readOnly
+              style={{
+                background: t.inputBackground,
+                color: t.inputText,
+                borderColor: t.inputBorder,
+                borderRadius: r,
+              }}
+            />
+            <button
+              className={styles.previewCouponBtn}
+              style={{ color: t.discountColor, borderColor: t.discountColor, borderRadius: r }}
+            >
+              Apply
+            </button>
+          </div>
+
           <div className={styles.previewSummaryRow}>
             <span className={styles.previewSummaryLabel} style={{ color: t.pageTextSecondary }}>
               Subtotal
@@ -501,7 +546,10 @@ function Preview({ t }) {
             </span>
           </div>
           <div className={styles.previewSummaryRow}>
-            <span className={styles.previewSummaryLabel} style={{ color: t.discountColor }}>
+            <span className={styles.previewDiscountRow} style={{ color: t.discountColor }}>
+              <svg className={styles.previewIconSmall} viewBox="0 0 20 20" fill={t.discountColor} aria-hidden="true">
+                <path d="M17.707 9.293a1 1 0 010 1.414l-7 7a1 1 0 01-1.414 0l-7-7A.997.997 0 012 10V5a3 3 0 013-3h5c.256 0 .512.098.707.293l7 7zM5 6a1 1 0 100-2 1 1 0 000 2z" />
+              </svg>
               Discount
             </span>
             <span className={styles.previewSummaryValue} style={{ color: t.discountColor }}>
@@ -509,10 +557,10 @@ function Preview({ t }) {
             </span>
           </div>
           <div className={styles.previewTotalRow} style={{ borderTopColor: t.cardBorder }}>
-            <span className={styles.previewTotalLabel} style={{ color: t.pageText }}>
+            <span className={styles.previewTotalLabel} style={{ color: t.pageText, fontWeight: t.fontWeightBold }}>
               Total
             </span>
-            <span className={styles.previewTotalValue} style={{ color: t.pageText }}>
+            <span className={styles.previewTotalValue} style={{ color: t.pageText, fontWeight: t.fontWeightBold }}>
               $59.98
             </span>
           </div>

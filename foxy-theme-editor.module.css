@@ -403,12 +403,26 @@
   background: var(--sec-bg);
   color: var(--sec-label);
   border-color: var(--sec-border);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
 }
 
 .previewSecondaryBtn:hover {
   background: var(--sec-hover-bg);
   color: var(--sec-hover-label);
   border-color: var(--sec-hover-border);
+}
+
+/* Icon color switches on secondary button hover (matches production) */
+.previewSecondaryBtn .previewIcon {
+  fill: var(--icon-color);
+  transition: fill 0.2s ease;
+}
+
+.previewSecondaryBtn:hover .previewIcon {
+  fill: var(--icon-on-btn);
 }
 
 .previewSidebar {
@@ -513,6 +527,76 @@
 
 .previewFooterLink {
   text-decoration: none;
+}
+
+/* ==========================================
+   8b. PREVIEW — Remove links, helper text,
+       coupon entry, small icons
+   ========================================== */
+
+.previewRemoveLink {
+  font-size: 9px;
+  text-decoration: none;
+  transition: color 0.15s;
+}
+
+.previewRemoveLink:hover {
+  color: var(--link-color);
+  text-decoration: underline;
+}
+
+.previewHelperText {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  margin-top: 10px;
+  font-size: 10px;
+}
+
+.previewIconSmall {
+  width: 11px;
+  height: 11px;
+  flex-shrink: 0;
+}
+
+.previewCouponRow {
+  display: flex;
+  gap: 4px;
+  margin-top: 8px;
+  margin-bottom: 8px;
+}
+
+.previewCouponInput {
+  flex: 1;
+  min-width: 0;
+  font-size: 10px;
+  padding: 4px 6px;
+  border-style: solid;
+  border-width: 1px;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.previewCouponInput::placeholder {
+  opacity: 0.5;
+}
+
+.previewCouponBtn {
+  font-size: 9px;
+  font-weight: 600;
+  padding: 4px 8px;
+  background: transparent;
+  border-style: solid;
+  border-width: 1px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.previewDiscountRow {
+  display: flex;
+  align-items: center;
+  gap: 3px;
 }
 
 /* ==========================================
