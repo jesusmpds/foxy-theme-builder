@@ -68,8 +68,6 @@ const DEFAULT_TOKENS = {
   dangerText: "#b71c1c",
 
   discountColor: "#3d9c9e",
-  iconColor: "#000000",
-  iconColorOnButton: "#ffffff",
 };
 
 const DARK_PRESET = {
@@ -110,8 +108,6 @@ const DARK_PRESET = {
   dangerBorder: "#4a1818",
   dangerText: "#ef6b6b",
   discountColor: "#4ecdc4",
-  iconColor: "#d8d8e3",
-  iconColorOnButton: "#0e0e1a",
 };
 
 function generateCSS(t) {
@@ -188,9 +184,9 @@ function generateCSS(t) {
 
 
   /* =========================================== */
-  /* 6. TEXT FIELDS                               */
-  /* The boxes where customers type               */
-  /* (name, email, postal code, quantity)         */
+  /* 6. TEXT FIELDS & FOCUS                      */
+  /* The boxes where customers type, and the     */
+  /* highlight glow on focused elements          */
   /* =========================================== */
 
   --foxy-input-background:                 ${t.inputBackground};
@@ -198,15 +194,17 @@ function generateCSS(t) {
   --foxy-input-border:                     ${t.inputBorder};
   --foxy-input-focus:                      ${t.inputFocus};
   --foxy-input-highlight:                  0 0 0 2px color-mix(in srgb, var(--foxy-input-focus) 15%, transparent);
+  --foxy-button-highlight:                 0 0 0 3px color-mix(in srgb, var(--foxy-input-focus) 35%, transparent);
 
 
   /* =========================================== */
-  /* 7. LINKS                                    */
-  /* Clickable text throughout the store          */
+  /* 7. LINKS & DISCOUNTS                        */
+  /* Clickable text and coupon colors             */
   /* =========================================== */
 
   --foxy-link-color:                       ${t.linkColor};
   --foxy-link-hover:                       ${t.linkHover};
+  --foxy-discount-color:                   ${t.discountColor};
 
 
   /* =========================================== */
@@ -233,17 +231,6 @@ function generateCSS(t) {
   --foxy-danger-background:                ${t.dangerBackground};
   --foxy-danger-border:                    ${t.dangerBorder};
   --foxy-danger-text:                      ${t.dangerText};
-
-
-  /* =========================================== */
-  /* 9. EXTRAS                                   */
-  /* Discount colors, icons, and highlights       */
-  /* =========================================== */
-
-  --foxy-discount-color:                   ${t.discountColor};
-  --foxy-icon-color:                       ${t.iconColor};
-  --foxy-icon-color-on-button:             ${t.iconColorOnButton};
-  --foxy-button-highlight:                 0 0 0 3px color-mix(in srgb, var(--foxy-input-focus) 35%, transparent);
 }`;
 }
 
@@ -348,8 +335,8 @@ function Preview({ t }) {
         "--sec-hover-border": t.buttonSecondaryHoverBorder,
         "--input-focus": t.inputFocus,
         "--input-focus-ring": `${t.inputFocus}26`,
-        "--icon-color": t.iconColor,
-        "--icon-on-btn": t.iconColorOnButton,
+        "--icon-color": t.pageText,
+        "--icon-on-btn": t.buttonPrimaryLabel,
         "--link-color": t.linkColor,
       }}
     >
@@ -462,7 +449,7 @@ function Preview({ t }) {
             </div>
 
             <div className={styles.previewHelperText} style={{ color: t.pageTextSecondary }}>
-              <svg className={styles.previewIconSmall} viewBox="0 0 20 20" fill={t.iconColor} aria-hidden="true">
+              <svg className={styles.previewIconSmall} viewBox="0 0 20 20" fill={t.pageText} aria-hidden="true">
                 <path d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" />
               </svg>
               Secured by Foxy.io
@@ -481,7 +468,7 @@ function Preview({ t }) {
             <svg
               className={styles.previewIcon}
               viewBox="0 0 20 20"
-              fill={t.iconColor}
+              fill={t.pageText}
               aria-hidden="true"
             >
               <path d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 3H6.28l-.31-1.243A1 1 0 005 1H3zm13 15.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM6.5 18a1.5 1.5 0 100-3 1.5 1.5 0 000 3z" />
@@ -531,7 +518,12 @@ function Preview({ t }) {
             />
             <button
               className={styles.previewCouponBtn}
-              style={{ color: t.discountColor, borderColor: t.discountColor, borderRadius: r }}
+              style={{
+                background: t.buttonPrimaryBackground,
+                color: t.buttonPrimaryLabel,
+                borderColor: t.buttonPrimaryBorder,
+                borderRadius: r,
+              }}
             >
               Apply
             </button>
@@ -932,17 +924,23 @@ export default function FoxyThemeEditor() {
             />
           </Section>
 
-          <Section title="Links" subtitle="Clickable text">
+          <Section title="Links & discounts" subtitle="Clickable text, coupons">
             <ColorField
-              label="Color"
+              label="Link color"
               value={tokens.linkColor}
               tokenKey="linkColor"
               onChange={update}
             />
             <ColorField
-              label="Hover"
+              label="Link hover"
               value={tokens.linkHover}
               tokenKey="linkHover"
+              onChange={update}
+            />
+            <ColorField
+              label="Discount color"
+              value={tokens.discountColor}
+              tokenKey="discountColor"
               onChange={update}
             />
           </Section>
@@ -1026,26 +1024,6 @@ export default function FoxyThemeEditor() {
             />
           </Section>
 
-          <Section title="Extras" subtitle="Discounts, icons">
-            <ColorField
-              label="Discount color"
-              value={tokens.discountColor}
-              tokenKey="discountColor"
-              onChange={update}
-            />
-            <ColorField
-              label="Icon color"
-              value={tokens.iconColor}
-              tokenKey="iconColor"
-              onChange={update}
-            />
-            <ColorField
-              label="Icon on button"
-              value={tokens.iconColorOnButton}
-              tokenKey="iconColorOnButton"
-              onChange={update}
-            />
-          </Section>
         </div>
 
         <div>
